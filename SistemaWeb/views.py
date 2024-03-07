@@ -3,8 +3,8 @@ from django.db import models
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets, status
 from django.contrib.auth.models import User
-from . serializers import UserSerializer, GrifoSerializer,ProductoSerializer,RendimientoSerializer ,ConductoSerializer,BancoSerializer, CamionSerializer, DataGeneralSerializer
-from .models import Grifo,Producto, Conductor, Camion, DataGeneral, Banco, Rendimiento
+from . serializers import UserSerializer, GrifoSerializer,ProductoSerializer,TraspasosSerializer,RendimientoSerializer ,ConductoSerializer,BancoSerializer, CamionSerializer, DataGeneralSerializer
+from .models import Grifo,Producto, Conductor, Camion, DataGeneral, Banco, Rendimiento, traspasos
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -157,7 +157,134 @@ class ListadoNombresView(APIView):
                 "detalle": data_general.detalle,
                 "observacion": data_general.observacion,
                 "estado_rendimiento": data_general.estado_rendimiento,
+                # "origen" : data_general.origen,
+                # "destino": data_general.destino,
+                # "carga": data_general.carga,
+                # "peso": data_general.peso,  
                 "rendimiento": rendimiento_data
+            })
+
+        return Response(result)
+
+class ListadoDataPendienteView(APIView):
+    # authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        placa_camion = request.query_params.get('placa', None)
+
+        if not placa_camion:
+            return Response({"error": "Se requiere especificar la placa del camión."}, status=400)
+
+        data_generales = DataGeneral.objects.filter(estado_rendimiento=False, placa__placa=placa_camion)
+
+        result = []
+
+        for data_general in data_generales:
+            grifo_serializer = GrifoSerializer(Grifo.objects.get(pk=data_general.grifo.id))
+            producto_serializer = ProductoSerializer(Producto.objects.get(pk=data_general.producto.id))
+            conductor_serializer = ConductoSerializer(Conductor.objects.get(pk=data_general.conductor.id))
+            camion_serializer = CamionSerializer(Camion.objects.get(pk=data_general.placa.id))
+            rendimiento_data = {}
+            rendimiento_instance = Rendimiento.objects.filter(id_datageneral=data_general.id).first()
+            if rendimiento_instance:
+                rendimiento_serializer = RendimientoSerializer(rendimiento_instance)
+                rendimiento_data = rendimiento_serializer.data
+
+            placa_traspaso = camion_serializer.data['placa'] if data_general.traspaso_id else "vacio"
+
+            result.append({
+                "id": data_general.id,
+                "fecha_creacion": data_general.fecha_creacion,
+                "fecha_actualizacion": data_general.fecha_actualizacion,
+                "traspaso": data_general.traspaso_id,
+                "placa": data_general.placa.id,
+                "placa_traspaso": placa_traspaso,
+                "placa_nombre": camion_serializer.data['placa'],
+                "conductor": data_general.conductor.id,
+                "conductor_nombre": conductor_serializer.data['nombre'],
+                "conductor_apellido": conductor_serializer.data['apellido'],
+                "galones": data_general.galones,
+                "producto": data_general.producto.id,
+                "producto_nombre": producto_serializer.data['nombre'],
+                "documento": data_general.documento,
+                "precio": data_general.precio,
+                "total": data_general.total,
+                "kilometraje": data_general.kilometraje,
+                "grifo": data_general.grifo.id,
+                "grifo_nombre": grifo_serializer.data['nombre'],
+                "cantidad_traspaso": data_general.cantidad_traspaso,
+                "Monto_Transpaso": data_general.Monto_Transpaso,
+                "estado": data_general.estado,
+                "detalle": data_general.detalle,
+                "observacion": data_general.observacion,
+                "estado_rendimiento": data_general.estado_rendimiento,
+                # "origen": data_general.origen,
+                # "destino": data_general.destino,
+                # "carga": data_general.carga,
+                # "peso": data_general.peso,
+                "rendimiento": rendimiento_data
+            })
+
+        return Response(result)
+
+
+class ListadoRendimientoView(APIView):
+    # authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        rendimientos = Rendimiento.objects.all()
+        result = []
+
+        for rendimiento in rendimientos:
+            data_general = rendimiento.id_datageneral
+            grifo_serializer = GrifoSerializer(data_general.grifo)
+            producto_serializer = ProductoSerializer(data_general.producto)
+            conductor_serializer = ConductoSerializer(data_general.conductor)
+            camion_serializer = CamionSerializer(data_general.placa)
+            
+            placa_traspaso = camion_serializer.data['placa'] if data_general.traspaso_id else "vacio"
+
+            result.append({
+                "id": rendimiento.id,
+                "fecha_rendimiento": rendimiento.fecha_tanqueo,
+                "id_data_general": data_general.id,
+                "rend_kmxglp": rendimiento.rend_kmxglp,
+                "ren_esperado": rendimiento.ren_esperado,
+                "gl_esperado": rendimiento.gl_esperado,
+                "km_recorrido": rendimiento.km_recorrido,
+                "año": rendimiento.año,
+                "periodo": rendimiento.periodo,
+                "exceso_real": rendimiento.exceso_real,
+                "fecha_creacion": data_general.fecha_creacion,
+                "fecha_actualizacion": data_general.fecha_actualizacion,
+                "traspaso": data_general.traspaso_id,
+                "placa": data_general.placa.id,
+                "placa_traspaso": placa_traspaso,
+                "placa_nombre": camion_serializer.data['placa'],
+                "conductor": data_general.conductor.id,
+                "conductor_nombre": conductor_serializer.data['nombre'],
+                "conductor_apellido": conductor_serializer.data['apellido'],
+                "galones": data_general.galones,
+                "producto": data_general.producto.id,
+                "producto_nombre": producto_serializer.data['nombre'],
+                "documento": data_general.documento,
+                "precio": data_general.precio,
+                "total": data_general.total,
+                "kilometraje": data_general.kilometraje,
+                "grifo": data_general.grifo.id,
+                "grifo_nombre": grifo_serializer.data['nombre'],
+                "cantidad_traspaso": data_general.cantidad_traspaso,
+                "Monto_Transpaso": data_general.Monto_Transpaso,
+                "estado": data_general.estado,
+                "detalle": data_general.detalle,
+                "observacion": data_general.observacion,
+                "estado_rendimiento": data_general.estado_rendimiento,
+                "origen": rendimiento.origen,
+                "destino": rendimiento.destino,
+                "carga": rendimiento.carga,
+                "peso": rendimiento.peso,
             })
 
         return Response(result)
@@ -171,6 +298,10 @@ class BancoViewSet(viewsets.ModelViewSet):
 class RendimientoViewSet(viewsets.ModelViewSet):
     queryset = Rendimiento.objects.all()
     serializer_class = RendimientoSerializer
+
+class TraspasosViewSet(viewsets.ModelViewSet):
+    queryset = traspasos.objects.all()
+    serializer_class = TraspasosSerializer
 
 class MaxKilometrajeView(APIView):
     def get(self, request, *args, **kwargs):
@@ -188,3 +319,4 @@ class MaxKilometrajeView(APIView):
                 return Response({'max_kilometraje': max_kilometraje})
         else:
             return Response({'error': 'Debe proporcionar el parámetro placa en la solicitud GET'})
+        

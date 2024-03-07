@@ -74,15 +74,17 @@ class DataGeneral(models.Model):
     kilometraje = models.DecimalField(max_digits=10, decimal_places=1)
     grifo = models.ForeignKey(Grifo, on_delete=models.CASCADE)
     traspaso_id= models.IntegerField(blank=True, null=True)
-    cantidad_traspaso= models.IntegerField(blank=True, null=True)
-    Monto_Transpaso= models.IntegerField(blank=True, null=True)
+    cantidad_traspaso= models.DecimalField(max_digits=15, decimal_places=3,blank=True, null=True)
+    Monto_Transpaso= models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
     estado = models.CharField(max_length=2, choices=ESTADO_CHOICES)
     detalle = models.CharField(max_length=150,blank=True, null=True)    
     observacion = models.TextField(blank=True, null=True)
     estado_rendimiento= models.BooleanField(blank=True, null=True,default=False)
+    
 
     def save(self, *args, **kwargs):
-        self.documento = self.documento.upper() # Convierte el nombre a mayúsculas antes de guardar
+        self.documento = self.documento.upper()
+         # Convierte el nombre a mayúsculas antes de guardar
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -105,18 +107,20 @@ class Rendimiento(models.Model):
     id_datageneral = models.ForeignKey(DataGeneral, on_delete=models.CASCADE, unique=True)
     fecha_tanqueo = models.DateTimeField()
     año = models.IntegerField(blank=True, null=True)
-    periodo = models.CharField(max_length=20, blank=True, null=True)
-    ruta = models.CharField(max_length=255)  
-    carga = models.CharField(max_length=255)  
-    peso = models.CharField(max_length=255)  
-    km_recorrido = models.DecimalField(max_digits=10, decimal_places=2) 
-    rend_kmxglp = models.DecimalField(max_digits=10, decimal_places=2)
-    gl_esperado = models.DecimalField(max_digits=10, decimal_places=2)
-    ren_esperado = models.DecimalField(max_digits=10, decimal_places=2)
-    exceso_real = models.DecimalField(max_digits=10, decimal_places=2)
+    periodo = models.CharField(max_length=20, blank=True, null=True)  
+    km_recorrido = models.DecimalField(max_digits=10, decimal_places=2,blank=True, null=True) 
+    rend_kmxglp = models.DecimalField(max_digits=10, decimal_places=2,blank=True, null=True)
+    gl_esperado = models.DecimalField(max_digits=10, decimal_places=2,blank=True, null=True)
+    ren_esperado = models.DecimalField(max_digits=10, decimal_places=2,blank=True, null=True)
+    exceso_real = models.DecimalField(max_digits=10, decimal_places=2,blank=True, null=True)
+    origen = models.CharField(max_length=150) 
+    destino= models.CharField(max_length=150)
+    carga = models.CharField(max_length=10)  
+    peso = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        self.carga = self.carga.upper() # Convierte el nombre a mayúsculas antes de guardar
+        self.origen = self.origen.upper()
+        self.destino = self.destino.upper() # Convierte el nombre a mayúsculas antes de guardar
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -134,3 +138,9 @@ def calcular_anio_periodo(sender, instance, **kwargs):
     }
     mes_numero = instance.fecha_tanqueo.month
     instance.periodo = meses[mes_numero]
+
+class traspasos(models.Model):
+    id_datageneral = models.ForeignKey(DataGeneral, on_delete=models.CASCADE, unique=True)
+    cantidad_traspaso= models.DecimalField(max_digits=15, decimal_places=3,blank=True, null=True)
+    def __str__(self):
+        return self.id_datageneral
