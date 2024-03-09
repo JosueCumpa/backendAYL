@@ -157,6 +157,7 @@ class ListadoNombresView(APIView):
                 "detalle": data_general.detalle,
                 "observacion": data_general.observacion,
                 "estado_rendimiento": data_general.estado_rendimiento,
+                "estado_omitir": data_general.estado_omitir,
                 # "origen" : data_general.origen,
                 # "destino": data_general.destino,
                 # "carga": data_general.carga,
@@ -176,7 +177,7 @@ class ListadoDataPendienteView(APIView):
         if not placa_camion:
             return Response({"error": "Se requiere especificar la placa del camión."}, status=400)
 
-        data_generales = DataGeneral.objects.filter(estado_rendimiento=False, placa__placa=placa_camion)
+        data_generales = DataGeneral.objects.filter(estado_rendimiento=False, placa__placa=placa_camion, estado_omitir = False)
 
         result = []
 
@@ -219,6 +220,7 @@ class ListadoDataPendienteView(APIView):
                 "detalle": data_general.detalle,
                 "observacion": data_general.observacion,
                 "estado_rendimiento": data_general.estado_rendimiento,
+                "estado_omitir": data_general.estado_omitir,
                 # "origen": data_general.origen,
                 # "destino": data_general.destino,
                 # "carga": data_general.carga,
@@ -281,6 +283,7 @@ class ListadoRendimientoView(APIView):
                 "detalle": data_general.detalle,
                 "observacion": data_general.observacion,
                 "estado_rendimiento": data_general.estado_rendimiento,
+                "estado_omitir": data_general.estado_omitir,
                 "origen": rendimiento.origen,
                 "destino": rendimiento.destino,
                 "carga": rendimiento.carga,

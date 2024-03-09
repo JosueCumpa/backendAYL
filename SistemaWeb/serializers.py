@@ -215,6 +215,7 @@ class DataGeneralSerializer(serializers.ModelSerializer):
             'detalle',
             'observacion',
             'estado_rendimiento',
+            'estado_omitir',
             
         ]
 
@@ -241,6 +242,7 @@ class DataGeneralSerializer(serializers.ModelSerializer):
         # Recalcula el campo 'total' basándose en los nuevos valores
         instance.total = validated_data.get('total', instance.total)
         instance.estado_rendimiento = validated_data.get('estado_rendimiento', instance.estado_rendimiento)
+        instance.estado_omitir = validated_data.get('estado_omitir', instance.estado_omitir)
 
         instance.save()
         return instance

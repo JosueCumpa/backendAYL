@@ -80,7 +80,7 @@ class DataGeneral(models.Model):
     detalle = models.CharField(max_length=150,blank=True, null=True)    
     observacion = models.TextField(blank=True, null=True)
     estado_rendimiento= models.BooleanField(blank=True, null=True,default=False)
-    
+    estado_omitir= models.BooleanField(blank=True, null=True,default=False)
 
     def save(self, *args, **kwargs):
         self.documento = self.documento.upper()
@@ -104,7 +104,7 @@ class Banco(models.Model):
         return self.nombre
     
 class Rendimiento(models.Model):
-    id_datageneral = models.ForeignKey(DataGeneral, on_delete=models.CASCADE, unique=True)
+    id_datageneral = models.ForeignKey(DataGeneral, on_delete=models.CASCADE)
     fecha_tanqueo = models.DateTimeField()
     año = models.IntegerField(blank=True, null=True)
     periodo = models.CharField(max_length=20, blank=True, null=True)  
@@ -120,11 +120,12 @@ class Rendimiento(models.Model):
 
     def save(self, *args, **kwargs):
         self.origen = self.origen.upper()
-        self.destino = self.destino.upper() # Convierte el nombre a mayúsculas antes de guardar
+        self.destino = self.destino.upper()
+        self.carga = self.carga.upper() # Convierte el nombre a mayúsculas antes de guardar
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.id_datageneral
+        return self.id
 
 @receiver(pre_save, sender=Rendimiento)
 def calcular_anio_periodo(sender, instance, **kwargs):
