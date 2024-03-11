@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Grifo, Producto, Conductor, Camion, DataGeneral, Banco, Rendimiento, traspasos
+from .models import Grifo, Producto, Conductor, Camion, DataGeneral, Banco, Rendimiento, traspasos, ciudad
 
 
 
@@ -309,5 +309,20 @@ class TraspasosSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.id_datageneral = validated_data.get('id_datageneral', instance.id_datageneral)
         instance.cantidad_traspaso = validated_data.get('cantidad_traspaso', instance.cantidad_traspaso)
+        instance.save()
+        return instance
+
+class ciudadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ciudad
+        fields= '__all__'
+
+    def create(self, validated_data):
+        ciudades = ciudad.objects.create(**validated_data)
+        return ciudades
+    
+    def update(self, instance, validated_data):
+        instance.nombre = validated_data.get('nombre', instance.nombre)
+        instance.estado = validated_data.get('estado', instance.estado)
         instance.save()
         return instance

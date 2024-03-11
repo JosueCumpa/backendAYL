@@ -3,8 +3,8 @@ from django.db import models
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets, status
 from django.contrib.auth.models import User
-from . serializers import UserSerializer, GrifoSerializer,ProductoSerializer,TraspasosSerializer,RendimientoSerializer ,ConductoSerializer,BancoSerializer, CamionSerializer, DataGeneralSerializer
-from .models import Grifo,Producto, Conductor, Camion, DataGeneral, Banco, Rendimiento, traspasos
+from . serializers import UserSerializer, GrifoSerializer,ProductoSerializer,TraspasosSerializer,ciudadSerializer,RendimientoSerializer ,ConductoSerializer,BancoSerializer, CamionSerializer, DataGeneralSerializer
+from .models import Grifo,Producto, Conductor, Camion, DataGeneral, Banco, Rendimiento, traspasos, ciudad
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -59,7 +59,7 @@ class GrifoView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class ProductoViewSet(viewsets.ModelViewSet):
-    queryset = Producto.objects.all()
+    queryset = Producto.objects.all().order_by('nombre')
     serializer_class = ProductoSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -67,6 +67,12 @@ class ProductoViewSet(viewsets.ModelViewSet):
 class ConductorViewSet(viewsets.ModelViewSet):
     queryset = Conductor.objects.all().order_by('nombre')
     serializer_class= ConductoSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+class ciudadViewSet(viewsets.ModelViewSet):
+    queryset = ciudad.objects.all().order_by('nombre')
+    serializer_class = ciudadSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -177,7 +183,7 @@ class ListadoDataPendienteView(APIView):
         if not placa_camion:
             return Response({"error": "Se requiere especificar la placa del camión."}, status=400)
 
-        data_generales = DataGeneral.objects.filter(estado_rendimiento=False, placa__placa=placa_camion, estado_omitir = False)
+        data_generales = DataGeneral.objects.filter(estado_rendimiento=False, placa__placa=placa_camion)
 
         result = []
 

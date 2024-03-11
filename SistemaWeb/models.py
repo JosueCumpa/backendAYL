@@ -145,3 +145,15 @@ class traspasos(models.Model):
     cantidad_traspaso= models.DecimalField(max_digits=15, decimal_places=3,blank=True, null=True)
     def __str__(self):
         return self.id_datageneral
+    
+
+class ciudad(models.Model):
+    nombre= models.CharField(max_length=20, blank=True, null=True, unique = True) 
+    estado = models.BooleanField()
+    
+    def save(self, *args, **kwargs):
+        self.nombre = self.nombre.upper()# Convierte el nombre a mayúsculas antes de guardar
+        super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return self.nombre

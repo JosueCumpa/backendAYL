@@ -1,5 +1,5 @@
 from django.urls import path, include
-from . views import  UserViewSet, GrifoViewSet,GrifoView,ListadoRendimientoView,TraspasosViewSet,ListadoDataPendienteView,ProductoViewSet, ConductorViewSet,RendimientoViewSet, CamionViewSet,BancoViewSet, ConductoresActivosView,DataGeneralViewSet, ListadoNombresView, CamionView,MaxKilometrajeView
+from . views import  UserViewSet, GrifoViewSet,GrifoView,ListadoRendimientoView,ciudadViewSet,TraspasosViewSet,ListadoDataPendienteView,ProductoViewSet, ConductorViewSet,RendimientoViewSet, CamionViewSet,BancoViewSet, ConductoresActivosView,DataGeneralViewSet, ListadoNombresView, CamionView,MaxKilometrajeView
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
@@ -12,6 +12,7 @@ router.register(r'DataGeneral',DataGeneralViewSet, basename="DataGeneral")
 router.register(r'Banco', BancoViewSet, basename="Bancos")
 router.register(r'Rendimiento', RendimientoViewSet, basename="Rendimiento")
 router.register(r'traspasos',TraspasosViewSet, basename="Traspasos")
+router.register(r'ciudad',ciudadViewSet, basename="Ciudad")
 
 urlpatterns = [ 
     path("", include(router.urls)),
