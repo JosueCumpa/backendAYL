@@ -153,6 +153,7 @@ SPECTACULAR_SETTINGS = {
 CORS_ALLOWED_ORIGINS = [    
     "http://localhost:5173",
     "http://127.0.0.1:8000",
+    "http://127.0.0.1:8090",
     "http://localhost",
     "http://www.imob.alexylalito.pe",
 ]
